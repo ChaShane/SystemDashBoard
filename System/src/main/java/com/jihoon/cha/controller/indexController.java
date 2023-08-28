@@ -51,7 +51,7 @@ public class indexController {
     }
 	
 	private static String formatMemory(long memoryInGB) {
-        return String.format("%.2f", (double) memoryInGB);
+        return String.format("%.0f", (double) memoryInGB);
     }
 	
 
@@ -196,7 +196,7 @@ public class indexController {
 		OperatingSystemMXBean osbean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
 		long freeMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getFreePhysicalMemorySize() / 1024 / 1024;
         long totalMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getTotalPhysicalMemorySize() / 1024 / 1024 ;
-        String memoryInfo = formatMemory(freeMemory) + " / " + formatMemory(totalMemory);
+        String memoryInfo = formatMemory(freeMemory) + "/" + formatMemory(totalMemory);
 		return memoryInfo;
 	}
 	

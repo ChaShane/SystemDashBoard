@@ -118,7 +118,7 @@
                   <div class="row">
                     <div class="col">
                       <h5 class="card-title text-uppercase text-muted mb-0">RAM 정보</h5>
-                      <span class="h2 font-weight-bold mb-0" id="data2_value">0 / 0 MB</span>
+                      <span class="h2 font-weight-bold mb-0" id="data2_value">0/0 MB</span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
@@ -312,7 +312,7 @@ var table = new Tabulator("#example-table", {
     ajaxConfig : "POST",
     pagination:true,
     paginationSize:4,
-    //ajaxURL:"./dbvar",
+    ajaxURL:"./dbvar",
     columns:[
     {title:"환경변수", field:"Variable_name"},
     {title:"값", field:"Value"}
@@ -595,10 +595,10 @@ function cpuinfo() {
 
 
 setTimeout(function() {
-	setInterval(cpuinfo, 1000);
-	setInterval(raminfo, 1000);
-	setInterval(networkinfo, 1000);
-	setInterval(prolist, 1000);
+	setInterval(cpuinfo, 3000);
+	setInterval(raminfo, 3000);
+	setInterval(networkinfo, 3000);
+	setInterval(prolist, 3000);
 }, 1000);
 
 hddlist();
