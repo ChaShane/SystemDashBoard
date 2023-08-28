@@ -3,18 +3,30 @@ package com.jihoon.cha.controller;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +40,6 @@ import ch.qos.logback.core.model.Model;
 
 
 
-
 @Controller
 public class indexController {
 
@@ -39,28 +50,39 @@ public class indexController {
         return str == null || str.isEmpty();
     }
 	
-	
-	private static int extractMemoryUsage(String line) {
-        String[] parts = line.split("\\s+");
-        if (parts.length >= 5) {
-            String memoryUsage = parts[parts.length - 4];
-            try {
-                return Integer.parseInt(memoryUsage.replace(",", ""));
-            } catch (NumberFormatException e) {
-                return 0;
-            }
-        }
-        return 0;
+	private static String formatMemory(long memoryInGB) {
+        return String.format("%.2f", (double) memoryInGB);
     }
 	
+
 	
 	@RequestMapping(value = "/processlist")
 	@ResponseBody
 	public  Map<String, Object>processlist() throws Exception {
 
+		List<Map<String, Object>> resultList = new ArrayList<>();
+		
+		Set<String> seenCommands = new HashSet<>();
+		 ProcessHandle.allProcesses()
+         .sorted(Comparator.comparingLong(ProcessHandle::pid))
+         .filter(info -> info.info().startInstant().isPresent())
+         .filter(info -> seenCommands.add(info.info().command().orElse("")))
+         .sorted(Comparator.comparing(info -> info.info().startInstant().get(), Comparator.reverseOrder()))
+         .distinct() 
+         .limit(5)
+         .forEach(processHandle -> {
+        	 String[] pathp=processHandle.info().command().get().split("\\\\");
+        	 String fileName = pathp[pathp.length - 1];
+             
+             Map<String, Object> entry = new HashMap<>();
+             entry.put("pid", processHandle.pid() );
+             entry.put("exe", fileName);
+             resultList.add(entry);
+             
+         });
 	        
 	        Map<String, Object> commandMap = new HashMap<>();
-			//commandMap.put("data", resultList);
+			commandMap.put("data", resultList);
 			return commandMap;
 	}
 	
@@ -78,35 +100,39 @@ public class indexController {
 	@ResponseBody
 	public  Map<String, Object>hddlist () throws Exception {
 		
-		String cmd = "wmic logicaldisk get name,size";
-		Process p = Runtime.getRuntime().exec("cmd /c " + cmd);
-
-		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String l = null;
-		String Result="0";
+	
+		Path path = FileSystems.getDefault().getPath("/");
 		
-		
+		FileStore fileStore = Files.getFileStore(path);
+        
+        long totalSpace = fileStore.getTotalSpace();
+        long usableSpace = fileStore.getUsableSpace();
+        long usedSpace = totalSpace - usableSpace;
+        
+        double totalSpaceGB = totalSpace / (1024.0 * 1024 * 1024);
+        double usableSpaceGB = usableSpace / (1024.0 * 1024 * 1024);
+        double usedSpaceGB = usedSpace / (1024.0 * 1024 * 1024);
+        
 		List<Map<String, Object>> resultList = new ArrayList<>();
+		
+		
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("Size", totalSpaceGB);
+        entry.put("Name", "전체용량");
+        resultList.add(entry);
+        
+        entry = new HashMap<>();
+        entry.put("Size", usedSpaceGB);
+        entry.put("Name", "사용량");
+        resultList.add(entry);
+        
+        
+        entry = new HashMap<>();
+        entry.put("Size", usableSpaceGB);
+        entry.put("Name", "남은용량");
+        resultList.add(entry);
+        
 
-		while ((l = r.readLine()) != null) {
-		    if (!isStringEmpty(l)) {
-		        String[] parts = l.split("\\s+");
-		        
-		        if (parts.length == 2 && !parts[1].equals("Size")) { // Skip lines starting with "Size"
-		            String name = parts[0];
-		            String size = parts[1];
-		            
-		            long sizeBytes = Long.parseLong(size);
-		            double sizeGigabytes = (double) sizeBytes / (1024 * 1024 * 1024);
-		            String sizeFormatted = String.format("%.2f", sizeGigabytes);
-		            
-		            Map<String, Object> entry = new HashMap<>();
-		            entry.put("Size", sizeFormatted);
-		            entry.put("Name", name);
-		            resultList.add(entry);
-		        }
-		    }			
-		}
 
 
 		Map<String, Object> commandMap = new HashMap<>();
@@ -118,28 +144,47 @@ public class indexController {
 	@ResponseBody
 	public  String networkinfo () throws Exception {
 		
-		String cmd = "for /f \"tokens=2,3 delims= \" %i in ('netstat -e ^| find \"바이트\"') do @echo %i %j\r\n";
-		Process p = Runtime.getRuntime().exec("cmd /c " + cmd);
+		String json="";
+		  String serverAddress = "localhost";
+	        int serverPort = 8080;
+	        int bufferSize = 1024; // 업로드 및 다운로드할 데이터의 크기
 
-		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String l = null;
-		String Result="0";
-		
-		
-		while ((l = r.readLine()) != null) {
-			if (!isStringEmpty(l)) {
-				Result=l.toString();
-			}			
-		}
+	        try (Socket socket = new Socket(serverAddress, serverPort);
+	             OutputStream out = socket.getOutputStream();
+	             InputStream in = socket.getInputStream()) {
 
-		 String[] splitData = Result.split(" ");
-         long recvBytes = Long.parseLong(splitData[0]);
-         long sendBytes = Long.parseLong(splitData[1]);
+	            // 업로드 속도 체크
+	            byte[] uploadData = new byte[bufferSize];
+	            long uploadStartTime = System.nanoTime();
 
-         double kbpsRecv = (recvBytes * 8) / (1024.0 * 1024.0); 
-         double kbpsSend = (sendBytes * 8) / (1024.0 * 1024.0);
+	            out.write(uploadData);
 
-         String json = String.format("{\"recv\": %.1f, \"send\": %.1f}", kbpsRecv, kbpsSend);
+	            long uploadEndTime = System.nanoTime();
+	            double uploadElapsedTimeInSeconds = (uploadEndTime - uploadStartTime) / 1e9;
+	            double uploadSpeedKbps = (bufferSize * 8.0 / uploadElapsedTimeInSeconds) / 1000000;
+
+	            // 다운로드 속도 체크
+	            byte[] downloadData = new byte[bufferSize];
+	            long downloadStartTime = System.nanoTime();
+
+	            int bytesRead;
+	            while ((bytesRead = in.read(downloadData)) != -1) {
+	            }
+
+	            long downloadEndTime = System.nanoTime();
+	            double downloadElapsedTimeInSeconds = (downloadEndTime - downloadStartTime) / 1e9;
+	            double downloadSpeedKbps = (bufferSize * 8.0 / downloadElapsedTimeInSeconds) / 1000000;
+
+
+	             json = String.format("{\"recv\": %.1f, \"send\": %.1f}",downloadSpeedKbps, uploadSpeedKbps);
+
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+
+	        
+
+         
 
 	
 		return json;
@@ -150,57 +195,21 @@ public class indexController {
 	@RequestMapping(value = "/raminfo")
 	@ResponseBody
 	public  String raminfo () throws Exception {
-		
-		String cmd = "wmic os get FreePhysicalMemory,TotalVisibleMemorySize";
-		Process p = Runtime.getRuntime().exec("cmd /c " + cmd);
-
-		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String l = null;
-		String Result="0";
-		
-		
-		while ((l = r.readLine()) != null) {
-			if (!isStringEmpty(l)) {
-				Result=l.toString();
-			}			
-		}
-		
-		String Split_Data[] = Result.split("             ");
-		String Use_RAM=Split_Data[0];
-		String Value_USERAM=String.format("%.1f",Float.valueOf(Use_RAM)/1024/1024).toString();
-		String Total_RAM=Split_Data[1];
-		String Value_TOTALRAM=String.format("%.0f",Float.valueOf(Total_RAM)/1024/1024).toString();
-
-		return Value_USERAM +" / "+Value_TOTALRAM;
+		OperatingSystemMXBean osbean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+		long freeMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getFreePhysicalMemorySize() / 1024 / 1024 / 1024;
+        long totalMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getTotalPhysicalMemorySize() / 1024 / 1024 / 1024;
+        String memoryInfo = formatMemory(freeMemory) + " / " + formatMemory(totalMemory);
+		return memoryInfo;
 	}
 	
 	@RequestMapping(value = "/cpuinfo")
 	@ResponseBody
 	public  String cpuinfo () throws Exception {
 		
-		String command = "top -bn 1 | grep 'Cpu(s)'"; // 현재 CPU 사용량 정보 가져오기
-		Process process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
-		String result="";
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		String line;
-		double cpuUsage = 0.0;
-
-		while ((line = reader.readLine()) != null) {
-		    if (line.contains("%Cpu(s)")) {
-		        String[] parts = line.split("us,")[0].split(":")[1].trim().split("\\s+");
-		        for (String part : parts) {
-		            if (part.endsWith("id")) { // id는 idle 시간의 비율
-		                cpuUsage = 100.0 - Double.parseDouble(part);
-		                result=Double.toString(cpuUsage);
-		                break;
-		            }
-		        }
-		        break;
-		    }
-		}
-
-		reader.close();
-		return result;
+		OperatingSystemMXBean osbean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+		String cpuUsage = String.format("%.2f", ((com.sun.management.OperatingSystemMXBean) osbean).getSystemCpuLoad() * 100);
+		
+		return cpuUsage;
 	}
 	
 	//index.html 호출

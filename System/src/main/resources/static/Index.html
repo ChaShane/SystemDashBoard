@@ -138,7 +138,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">네트워크 수신</h5>
+                      <h5 class="card-title text-uppercase text-muted mb-0">다운로드 속도</h5>
                       <span class="h2 font-weight-bold mb-0" id="data3_value"></span>
                     </div>
                     <div class="col-auto">
@@ -159,7 +159,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">네트워크 송신</h5>
+                      <h5 class="card-title text-uppercase text-muted mb-0">업로드 속도</h5>
                       <span class="h2 font-weight-bold mb-0" id="data4_value"></span>
                     </div>
                     <div class="col-auto">
@@ -245,7 +245,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">API 배달대행 매장 등록</h3>
+                  <h3 class="mb-0">최근 프록세스 실행 목록</h3>
                 </div>
               </div>
             </div>
@@ -254,8 +254,8 @@
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">업체</th>
-                    <th scope="col">매장수</th>
+                    <th scope="col">프로세스명</th>
+                    <th scope="col">PID</th>
                     <th scope="col"></th>
                   </tr>
                 </thead>
@@ -312,7 +312,7 @@ var table = new Tabulator("#example-table", {
     ajaxConfig : "POST",
     pagination:true,
     paginationSize:4,
-    ajaxURL:"./dbvar",
+    //ajaxURL:"./dbvar",
     columns:[
     {title:"환경변수", field:"Variable_name"},
     {title:"값", field:"Value"}
@@ -338,10 +338,53 @@ function EmptyValueChange(value) {
     return value;
 }
 
-const arrayRemove = (arr, index) => {
-    arr.splice(index, 1);
-};
+function arrayRemoveAndReindex(arr, index) {
+  if (index >= 0 && index < arr.length) {
+    arr.splice(index, 1); // 원소 삭제
+    for (let i = index; i < arr.length; i++) {
+      // 삭제된 원소 이후의 인덱스 재조정
+      arr[i] = arr[i + 1];
+    }
+    arr.length--; // 배열 길이 감소
+  }
+}
 
+//프로세스 목록
+function prolist() {
+	var html = "";
+	$('#list').empty();
+	
+	$.ajax({
+	    type : 'POST',
+	    url : './processlist',
+	    async : false,
+	    success : function(data) {
+	    	data.data.forEach(item=> {
+	    	
+	    	html += '<tr>';
+	    	html += '<th scope="row">';
+	    	html += item.exe+'</th>';
+	    	html += '<td>'+item.pid+'</td>';
+	    	html += '<td>';
+	    	html += '<div class="d-flex align-items-center">';
+	    	//html += '<span class="mr-2">'+per+'%</span>';
+	    	html += '<div>';
+	    	//html += '<div class="progress">';
+	    	//html += '<div class="'+bar+'" role="progressbar" aria-valuenow="'+per+'" aria-valuemin="0" aria-valuemax="100" style="width: '+per+'%;"></div>';
+	    	html += '</div>';
+	    	html += '</div>';
+	    	html += '</div>';
+	    	html += '</td>';
+	    	html += '</tr>';
+	    	
+	    	});
+
+		$('#list').append(html);
+		
+		}
+	});
+	
+}
 
 //하드디스크 용량
 function hddlist() {
@@ -466,14 +509,7 @@ function chart_cpu() {
 	    e.data("chart", a))
 	}();
 	
-	setTimeout(function() {
-		if (chart2_x.length > 4){
-	 		arrayRemove(chart2_x,0)
-			arrayRemove(chart2_value,0)
-			console.log(chart2_x.length+"---"+chart2_value.length);
-		}
-	}, 1000);
-	
+
 	
 }
 
@@ -538,6 +574,12 @@ function cpuinfo() {
 
 	  	 	
 	  	 	if (be_hours+":"+be_min+":"+be_sec != hours+":"+minutes+":"+seconds){
+				   
+				if (chart2_x.length > 4){
+			 		arrayRemoveAndReindex(chart2_x,0)
+					arrayRemoveAndReindex(chart2_value,0)//
+					//console.log(chart2_x.length+"---"+chart2_value.length);
+				}
 	  	 		chart2_x.push(`${hours}:${minutes}:${seconds}`);
 	  	 		chart2_value.push(EmptyValueChange(data));
 	  	 		be_hours=hours;
@@ -556,6 +598,7 @@ setTimeout(function() {
 	setInterval(cpuinfo, 1000);
 	setInterval(raminfo, 1000);
 	setInterval(networkinfo, 1000);
+	setInterval(prolist, 1000);
 }, 1000);
 
 hddlist();
