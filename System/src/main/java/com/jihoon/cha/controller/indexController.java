@@ -179,18 +179,27 @@ public class indexController {
 	public  String cpuinfo () throws Exception {
 		
 		String command = "top -bn 1 | grep 'Cpu(s)'"; // 현재 CPU 사용량 정보 가져오기
-        Process process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
-        String result="";
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line = reader.readLine();
-        if (line != null) {
-            String[] parts = line.split("\\s+");
-            double cpuUsage = Double.parseDouble(parts[1]) + Double.parseDouble(parts[2]);
-            System.out.println("CPU Usage: " + cpuUsage + "%");
-            result = Double.toString(cpuUsage);
-        }
-        
-        reader.close();
+		Process process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
+		String result="";
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		String line;
+		double cpuUsage = 0.0;
+
+		while ((line = reader.readLine()) != null) {
+		    if (line.contains("%Cpu(s)")) {
+		        String[] parts = line.split("us,")[0].split(":")[1].trim().split("\\s+");
+		        for (String part : parts) {
+		            if (part.endsWith("id")) { // id는 idle 시간의 비율
+		                cpuUsage = 100.0 - Double.parseDouble(part);
+		                result=Double.toString(cpuUsage);
+		                break;
+		            }
+		        }
+		        break;
+		    }
+		}
+
+		reader.close();
 		return result;
 	}
 	
