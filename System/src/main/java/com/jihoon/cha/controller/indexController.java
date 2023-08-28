@@ -1,6 +1,7 @@
 package com.jihoon.cha.controller;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
@@ -177,21 +178,15 @@ public class indexController {
 	@ResponseBody
 	public  String cpuinfo () throws Exception {
 		
-		String cmd = "wmic cpu get loadpercentage";
-		Process p = Runtime.getRuntime().exec("cmd /c " + cmd);
-
-		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String l = null;
-		String Result="0";
-		
-		
-		while ((l = r.readLine()) != null) {
-			if (!isStringEmpty(l)) {
-				Result=l;
-			}			
-		}
-		
-		return Result;
+		 BufferedReader reader = new BufferedReader(new FileReader("/proc/cpuinfo"));
+         String line;
+         
+         while ((line = reader.readLine()) != null) {
+             System.out.println(line);
+         }
+         
+         reader.close();
+		return line;
 	}
 	
 	//index.html 호출
