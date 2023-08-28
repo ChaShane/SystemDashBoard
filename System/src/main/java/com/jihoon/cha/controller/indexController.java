@@ -144,9 +144,9 @@ public class indexController {
 	@ResponseBody
 	public  String networkinfo () throws Exception {
 		
-		String json="";
-		  String serverAddress = "localhost";
-	        int serverPort = 8080;
+			String json="";
+		  	String serverAddress = "app.cloudtype.io";
+	        int serverPort = 443;
 	        int bufferSize = 1024; // 업로드 및 다운로드할 데이터의 크기
 
 	        try (Socket socket = new Socket(serverAddress, serverPort);
@@ -178,13 +178,11 @@ public class indexController {
 
 	             json = String.format("{\"recv\": %.1f, \"send\": %.1f}",downloadSpeedKbps, uploadSpeedKbps);
 
-	        } catch (IOException e) {
-	            e.printStackTrace();
+	        } catch (Exception e){
+	            
 	        }
 
 	        
-
-         
 
 	
 		return json;
@@ -196,8 +194,8 @@ public class indexController {
 	@ResponseBody
 	public  String raminfo () throws Exception {
 		OperatingSystemMXBean osbean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
-		long freeMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getFreePhysicalMemorySize() / 1024 / 1024 / 1024;
-        long totalMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getTotalPhysicalMemorySize() / 1024 / 1024 / 1024;
+		long freeMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getFreePhysicalMemorySize() / 1024;
+        long totalMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getTotalPhysicalMemorySize() / 1024 ;
         String memoryInfo = formatMemory(freeMemory) + " / " + formatMemory(totalMemory);
 		return memoryInfo;
 	}
