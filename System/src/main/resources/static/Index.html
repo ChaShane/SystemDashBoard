@@ -1,607 +1,556 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>
-    SystemDashBaord
-  </title>
-  <!-- Favicon -->
-  <!-- Fonts -->
- 
-  <!-- Icons -->
-  <link href="css/nucleo.css" rel="stylesheet" />
-  <link href="css/all.min.css" rel="stylesheet" />
-  <!-- CSS Files -->
-  <link href="css/argon-dashboard.css?v=1.1.2" rel="stylesheet" />
-  
-  <script type="text/javascript" src="js/tabulator.min.js"></script>
-  <link href="css/tabulator_bootstrap5.css" rel="stylesheet">
-  <script type="text/javascript" src="js/xlsx.full.min.js"></script>
-  <script src="js/jspdf.umd.min.js"></script>
-  <script src="js/jspdf.plugin.autotable.min.js"></script>
-  
-<style>
-.myButton {
-	box-shadow:inset 0px 1px 0px 0px #ffffff;
-	background:linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%);
-	background-color:#f9f9f9;
-	border-radius:6px;
-	border:1px solid #dcdcdc;
-	display:inline-block;
-	cursor:pointer;
-	color:#666666;
-	font-family:Verdana;
-	font-size:13px;
-	font-weight:bold;
-	padding:6px 24px;
-	text-decoration:none;
-	text-shadow:0px 1px 0px #ffffff;
-}
-.myButton:hover {
-	background:linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%);
-	background-color:#e9e9e9;
-}
-.myButton:active {
-	position:relative;
-	top:1px;
-}
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>
+		시스템 대시보드
+	</title>
+
+	<!-- Icons -->
+	<link href="css/nucleo.css" rel="stylesheet" />
+	<link href="css/all.min.css" rel="stylesheet" />
+	<!-- CSS Files -->
+	<link href="css/argon-dashboard.css?v=1.1.2" rel="stylesheet" />
+
+	<script type="text/javascript" src="js/tabulator.min.js"></script>
+	<link href="css/tabulator_bootstrap5.css" rel="stylesheet">
+	<script type="text/javascript" src="js/xlsx.full.min.js"></script>
+	<script src="js/jspdf.umd.min.js"></script>
+	<script src="js/jspdf.plugin.autotable.min.js"></script>
 
 
-.loader-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명한 검정색 배경 */
-  backdrop-filter: blur(8px); /* 배경 흐리게 만들기 */
-  z-index: 1000; /* 스피너보다 위에 위치 */
-}
-
-.loader {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 16px solid #f3f3f3;
-  border-top: 16px solid #3498db;
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  animation: spin 2s linear infinite;
-  z-index: 1001; /* 오버레이보다 위에 위치 */
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style> 
 </head>
+
 <body class="">
-  <div class="main-content">
-    <!-- Header -->
-    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
-      <div class="container-fluid">
-        <div class="header-body">
-          <!-- Card stats -->
-          <div class="row">
-            <div class="col-xl-3 col-lg-6">
-              <div class="card card-stats mb-4 mb-xl-0">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">CPU 사용량</h5>
-                      <span class="h2 font-weight-bold mb-0" id="data1_value">0 %</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                        <i class="fas fa-store"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-muted text-sm">
-                    <span id="data1_compare">
-                    	<i id="data1_compare_fa"></i>
-                    </span>
-                    <span class="text-nowrap" id="data1_compare2"></span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-lg-6">
-              <div class="card card-stats mb-4 mb-xl-0">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">RAM 정보</h5>
-                      <span class="h2 font-weight-bold mb-0" id="data2_value">0/0 MB</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
-                        <i class="fas fa-chart-bar"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-muted text-sm">
-                  <span id="data2_compare"><i id="data2_compare_fa"></i></span>
-                    <span class="text-nowrap" id="data2_compare2"></span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-lg-6">
-              <div class="card card-stats mb-4 mb-xl-0">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">다운로드 속도</h5>
-                      <span class="h2 font-weight-bold mb-0" id="data3_value"></span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                        <i class="fas fa-copyright"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-muted text-sm">
-                    <span id="data3_compare"><i id="data3_compare_fa"></i></span>
-                    <span class="text-nowrap" id="data3_compare2"></span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-lg-6">
-              <div class="card card-stats mb-4 mb-xl-0">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">업로드 속도</h5>
-                      <span class="h2 font-weight-bold mb-0" id="data4_value"></span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-                        <i class="fas fa-percent"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-muted text-sm">
-                    <span id="data4_compare"><i id="data4_compare_fa"></i></span>
-                    <span class="text-nowrap" id="data4_compare2"></span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container-fluid mt--7">
-      <div class="row">
-        <div class="col-xl-8 mb-5 mb-xl-0">
-          <div class="card bg-gradient-default shadow">
-            <div class="card-header bg-transparent">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="text-uppercase text-light ls-1 mb-1">CPU INFORMATION</h6>
-                  <h2 class="text-white mb-0">CPU 실시간 사용량</h2>
-                </div>
-                <div class="col">
-                  <ul class="nav nav-pills justify-content-end">
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <!-- Chart -->
-              <div class="chart" id="chart_s">
-                <!-- Chart wrapper -->
-                <canvas id="chart_cpu" class="chart-canvas"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>                                 
-        <div class="col-xl-4">
-          <div class="card shadow">
-            <div class="card-header bg-transparent">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="text-uppercase text-muted ls-1 mb-1">HDD List</h6>
-                  <h2 class="mb-0">HDD 사용량</h2>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <!-- Chart -->
-              <div class="chart" id="chart_s2">
-                <canvas id="chart_hdd" class="chart-canvas"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row mt-5">
-        <div class="col-xl-8 mb-5 mb-xl-0">
-          <div class="card shadow">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Maria DB 환경변수</h3>
-                  <div id="example-table"></div>
-                  <p><p><p><p><p><p><p>
-                   <button id="download-xlsx" class="myButton">엑셀 다운로드</button>
-                </div>
-             
-              </div>
-            </div>
-          
-          </div>
-        </div>
-        <div class="col-xl-4">
-          <div class="card shadow">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">최근 프록세스 실행 목록</h3>
-                </div>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <!-- Projects table -->
-              <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">프로세스명</th>
-                    <th scope="col">PID</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody id="list">
-                  
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Footer -->
-      <footer class="footer">
-        <div class="row align-items-center justify-content-xl-between">
-          <div class="col-xl-6">
-            <div class="copyright text-center text-xl-left text-muted">
-              &copy; 2023 <aclass="font-weight-bold ml-1" target="_blank">Domino Pizza</a>
-            </div>
-          </div>
-          <div class="col-xl-6">
-            <ul class="nav nav-footer justify-content-center justify-content-xl-end">
-          
-            </ul>
-          </div>
-        </div>
-      </footer>
-    </div>
-  </div>
-  <!--   Core   -->
-  <script src="js/jquery.min.js"></script>
-  <script src="js/bootstrap.bundle.min.js"></script>
-  <!--   Optional JS   -->
-  <script src="js/Chart.min.js"></script>
-  <script src="js/Chart.extension.js"></script>
-  <!--   Argon JS   -->
-  <script src="js/argon-dashboard.min.js"></script>
-  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+	<div class="main-content">
+		<!-- Header -->
+		<div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
+			<div class="container-fluid">
+				<div class="header-body">
+					<!-- Card stats -->
+					<div class="row">
+						<div class="col-xl-3 col-lg-6">
+							<div class="card card-stats mb-4 mb-xl-0">
+								<div class="card-body">
+									<div class="row">
+										<div class="col">
+											<h5 class="card-title text-uppercase text-muted mb-0">CPU 사용량</h5>
+											<span class="h2 font-weight-bold mb-0" id="data1_value">0 %</span>
+										</div>
+										<div class="col-auto">
+											<div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+												<i class="fas fa-store"></i>
+											</div>
+										</div>
+									</div>
+									<p class="mt-3 mb-0 text-muted text-sm">
+										<span id="data1_compare">
+											<i id="data1_compare_fa"></i>
+										</span>
+										<span class="text-nowrap" id="data1_compare2"></span>
+									</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-3 col-lg-6">
+							<div class="card card-stats mb-4 mb-xl-0">
+								<div class="card-body">
+									<div class="row">
+										<div class="col">
+											<h5 class="card-title text-uppercase text-muted mb-0">RAM 정보</h5>
+											<span class="h2 font-weight-bold mb-0" id="data2_value">0/0 MB</span>
+										</div>
+										<div class="col-auto">
+											<div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+												<i class="fas fa-chart-bar"></i>
+											</div>
+										</div>
+									</div>
+									<p class="mt-3 mb-0 text-muted text-sm">
+										<span id="data2_compare"><i id="data2_compare_fa"></i></span>
+										<span class="text-nowrap" id="data2_compare2"></span>
+									</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-3 col-lg-6">
+							<div class="card card-stats mb-4 mb-xl-0">
+								<div class="card-body">
+									<div class="row">
+										<div class="col">
+											<h5 class="card-title text-uppercase text-muted mb-0">다운로드 속도</h5>
+											<span class="h2 font-weight-bold mb-0" id="data3_value"></span>
+										</div>
+										<div class="col-auto">
+											<div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
+												<i class="fas fa-copyright"></i>
+											</div>
+										</div>
+									</div>
+									<p class="mt-3 mb-0 text-muted text-sm">
+										<span id="data3_compare"><i id="data3_compare_fa"></i></span>
+										<span class="text-nowrap" id="data3_compare2"></span>
+									</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-3 col-lg-6">
+							<div class="card card-stats mb-4 mb-xl-0">
+								<div class="card-body">
+									<div class="row">
+										<div class="col">
+											<h5 class="card-title text-uppercase text-muted mb-0">업로드 속도</h5>
+											<span class="h2 font-weight-bold mb-0" id="data4_value"></span>
+										</div>
+										<div class="col-auto">
+											<div class="icon icon-shape bg-info text-white rounded-circle shadow">
+												<i class="fas fa-percent"></i>
+											</div>
+										</div>
+									</div>
+									<p class="mt-3 mb-0 text-muted text-sm">
+										<span id="data4_compare"><i id="data4_compare_fa"></i></span>
+										<span class="text-nowrap" id="data4_compare2"></span>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid mt--7">
+			<div class="row">
+				<div class="col-xl-8 mb-5 mb-xl-0">
+					<div class="card bg-gradient-default shadow">
+						<div class="card-header bg-transparent">
+							<div class="row align-items-center">
+								<div class="col">
+									<h6 class="text-uppercase text-light ls-1 mb-1">CPU INFORMATION</h6>
+									<h2 class="text-white mb-0">CPU 실시간 사용량</h2>
+								</div>
+								<div class="col">
+									<ul class="nav nav-pills justify-content-end">
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="card-body">
+							<!-- Chart -->
+							<div class="chart" id="chart_s">
+								<!-- Chart wrapper -->
+								<canvas id="chart_cpu" class="chart-canvas"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-4">
+					<div class="card shadow">
+						<div class="card-header bg-transparent">
+							<div class="row align-items-center">
+								<div class="col">
+									<h6 class="text-uppercase text-muted ls-1 mb-1">HDD List</h6>
+									<h2 class="mb-0">HDD 사용량</h2>
+								</div>
+							</div>
+						</div>
+						<div class="card-body">
+							<!-- Chart -->
+							<div class="chart" id="chart_s2">
+								<canvas id="chart_hdd" class="chart-canvas"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mt-5">
+				<div class="col-xl-8 mb-5 mb-xl-0">
+					<div class="card shadow">
+						<div class="card-header border-0">
+							<div class="row align-items-center">
+								<div class="col">
+									<h3 class="mb-0">Maria DB 환경변수</h3>
+									<div id="example-table"></div>
+									<p>
+									<p>
+									<p>
+									<p>
+									<p>
+									<p>
+									<p>
+										<button id="download-xlsx" class="myButton">엑셀 다운로드</button>
+								</div>
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<div class="col-xl-4">
+					<div class="card shadow">
+						<div class="card-header border-0">
+							<div class="row align-items-center">
+								<div class="col">
+									<h3 class="mb-0">최근 프록세스 실행 목록</h3>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive">
+							<!-- Projects table -->
+							<table class="table align-items-center table-flush">
+								<thead class="thead-light">
+									<tr>
+										<th scope="col">프로세스명</th>
+										<th scope="col">PID</th>
+										<th scope="col"></th>
+									</tr>
+								</thead>
+								<tbody id="list">
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Footer -->
+			<footer class="footer">
+				<div class="row align-items-center justify-content-xl-between">
+					<div class="col-xl-6">
+						<div class="copyright text-center text-xl-left text-muted">
+							&copy; 2023 <aclass="font-weight-bold ml-1" target="_blank">Jihoon Cha</a>
+						</div>
+					</div>
+					<div class="col-xl-6">
+						<ul class="nav nav-footer justify-content-center justify-content-xl-end">
+
+						</ul>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+	<!--   Core   -->
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.bundle.min.js"></script>
+	<!--   Optional JS   -->
+	<script src="js/Chart.min.js"></script>
+	<script src="js/Chart.extension.js"></script>
+	<!--   Argon JS   -->
+	<script src="js/argon-dashboard.min.js"></script>
+	<script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
 
 </body>
 
 <script language="javascript" type="text/javascript">
 
+	//CPU 실시간 사용량 시간 표기 비교를 위한 시간 변수 
+	var be_hours = new Date(1970, 0, 1, 0, 0).getHours();
+	var be_min = new Date(1970, 0, 1, 0, 0).getMinutes();
+	var be_sec = new Date(1970, 0, 1, 0, 0).getSeconds();
 
-var be_hours =new Date(1970, 0, 1, 0, 0).getHours();
-var be_min =new Date(1970, 0, 1, 0, 0).getMinutes();
-var be_sec =new Date(1970, 0, 1, 0, 0).getSeconds();
+	//차트 값 처리할 변수 
+	var chart2_x = [];
+	var chart2_value = [];
 
-var chart2_x=[];
-var chart2_value=[];
+	//MariaDB 환경변수 출력을 위한 테이블
+	var table = new Tabulator("#example-table", {
+		height: "311px",
+		layout: "fitColumns",
+		ajaxConfig: "POST",
+		pagination: true,
+		paginationSize: 4,
+		ajaxURL: "./dbvar",
+		columns: [
+			{title: "환경변수", field: "Variable_name"},
+			{title: "값", field: "Value"}
+		],
+		paginationCounter: function (pageSize, currentRow, currentPage, totalRows, totalPages) {
+			return "ROWDATA 개수 : " + totalRows + " Page : " + currentPage + "/" + totalPages;
+		},
+		ajaxResponse: function (url, params, response) {
 
-var table = new Tabulator("#example-table", {
-    height:"311px",
-    layout:"fitColumns",
-    ajaxConfig : "POST",
-    pagination:true,
-    paginationSize:4,
-    ajaxURL:"./dbvar",
-    columns:[
-    {title:"환경변수", field:"Variable_name"},
-    {title:"값", field:"Value"}
-    ],
-    paginationCounter:function(pageSize, currentRow, currentPage, totalRows, totalPages){
-        return "ROWDATA 개수 : "+totalRows +" Page : "+currentPage+"/"+totalPages;
-    },
-    ajaxResponse:function(url, params, response){
-
-        //url - the URL of the request
-        //params - the parameters passed with the request
-        //response - the JSON object returned in the body of the response.
-        return response.data; //pass the data array into Tabulator
-    },
-});	
+			return response.data;
+		},
+	});
 
 
-//Null, 공백, undefined 값인경우 0 으로 처리
-function EmptyValueChange(value) {
-    if (value === "" || value === undefined || value === null|| value === " ") {
-        return 0;
-    }
-    return value;
-}
-
-function arrayRemoveAndReindex(arr, index) {
-  if (index >= 0 && index < arr.length) {
-    arr.splice(index, 1); // 원소 삭제
-    for (let i = index; i < arr.length; i++) {
-      // 삭제된 원소 이후의 인덱스 재조정
-      arr[i] = arr[i + 1];
-    }
-    arr.length--; // 배열 길이 감소
-  }
-}
-
-//프로세스 목록
-function prolist() {
-	var html = "";
-	$('#list').empty();
-	
-	$.ajax({
-	    type : 'POST',
-	    url : './processlist',
-	    async : false,
-	    success : function(data) {
-	    	data.data.forEach(item=> {
-	    	
-	    	html += '<tr>';
-	    	html += '<th scope="row">';
-	    	html += item.exe+'</th>';
-	    	html += '<td>'+item.pid+'</td>';
-	    	html += '<td>';
-	    	html += '<div class="d-flex align-items-center">';
-	    	//html += '<span class="mr-2">'+per+'%</span>';
-	    	html += '<div>';
-	    	//html += '<div class="progress">';
-	    	//html += '<div class="'+bar+'" role="progressbar" aria-valuenow="'+per+'" aria-valuemin="0" aria-valuemax="100" style="width: '+per+'%;"></div>';
-	    	html += '</div>';
-	    	html += '</div>';
-	    	html += '</div>';
-	    	html += '</td>';
-	    	html += '</tr>';
-	    	
-	    	});
-
-		$('#list').append(html);
-		
+	//Null, 공백, undefined 값인경우 0 으로 처리
+	function EmptyValueChange(value) {
+		if (value === "" || value === undefined || value === null || value === " ") {
+			return 0;
 		}
-	});
-	
-}
+		return value;
+	}
 
-//하드디스크 용량
-function hddlist() {
-	
-	const line_x=[];
-	const line_value=[];
-	
-	$.ajax({
-	    type : 'POST',
-	    url : './hddlist',
-	    async : false,
-	    success : function(data) {
-	    	
-	    	data.data.forEach(dt=> {
-	    		line_x.push(dt.Name);
-	    		line_value.push(dt.Size);
-	    	});
-	    }
-	
-	});
-	
-	
-	OrdersChart = function() {
-		$('#chart_hdd').remove();
-		$('#chart_s2').append('<canvas id="chart_hdd" class="chart-canvas"></canvas>');
-	    var e, a, t = $("#chart_hdd");
-	    $('[name="ordersSelect"]');
-	    t.length && (e = t,
-	    a = new Chart(e,{
-	        type: "bar",
-	        options: {
-	            scales: {
-	                yAxes: [{
-	                    gridLines: {
-	                        lineWidth: 1,
-	                        color: "#dfe2e6",
-	                        zeroLineColor: "#dfe2e6"
-	                    },
-	                    ticks: {
-	                        callback: function(e) {
-	                            if (!(e % 10))
-	                                return e+" GB"
-	                        }
-	                    }
-	                }]
-	            },
-	            tooltips: {
-	                callbacks: {
-	                    label: function(e, a) {
-	                        var t = a.datasets[e.datasetIndex].label || ""
-	                          , o = e.yLabel
-	                          , n = "";
-	                        return 1 < a.datasets.length && (n += '<span class="popover-body-label mr-auto">' + t + "</span>"),
-	                        n += '<span class="popover-body-value">' + o.toLocaleString('ko-KR') + "GB</span>"
-	                    }
-	                }
-	            }
-	        },
-	        data: {
-	        	labels: line_x,
-	            datasets: [{
-	                label: "Sales",
-	                data: line_value
-	            }]
-	        }
-	    }),
-	    e.data("chart", a))
-	}();
-	
-	
-}
+	//해당 배열 삭제 후 재정렬 
+	function arrayRemoveAndReindex(arr, index) {
+		if (index >= 0 && index < arr.length) {
+			arr.splice(index, 1); // 원소 삭제
+			for (let i = index; i < arr.length; i++) {
+				// 삭제된 원소 이후의 인덱스 재조정
+				arr[i] = arr[i + 1];
+			}
+			arr.length--; // 배열 길이 감소
+		}
+	}
+
+	//프로세스 목록
+	function prolist() {
+		var html = "";
+		$('#list').empty();
+
+		$.ajax({
+			type: 'POST',
+			url: './processlist',
+			async: false,
+			success: function (data) {
+				data.data.forEach(item => {
+
+					html += '<tr>';
+					html += '<th scope="row">';
+					html += item.exe + '</th>';
+					html += '<td>' + item.pid + '</td>';
+					html += '<td>';
+					html += '<div class="d-flex align-items-center">';
+					//html += '<span class="mr-2">'+per+'%</span>';
+					html += '<div>';
+					//html += '<div class="progress">';
+					//html += '<div class="'+bar+'" role="progressbar" aria-valuenow="'+per+'" aria-valuemin="0" aria-valuemax="100" style="width: '+per+'%;"></div>';
+					html += '</div>';
+					html += '</div>';
+					html += '</div>';
+					html += '</td>';
+					html += '</tr>';
+
+				});
+
+				$('#list').append(html);
+
+			}
+		});
+
+	}
+
+	//하드디스크 용량
+	function hddlist() {
+
+		const line_x = [];
+		const line_value = [];
+
+		$.ajax({
+			type: 'POST',
+			url: './hddlist',
+			async: false,
+			success: function (data) {
+
+				data.data.forEach(dt => {
+					line_x.push(dt.Name);
+					line_value.push(dt.Size);
+				});
+			}
+
+		});
 
 
-//CPU 실시간 사용량
-function chart_cpu() {
-	
-	SalesChart = function() {
-		$('#chart_cpu').remove();
-		$('#chart_s').append('<canvas id="chart_cpu" class="chart-canvas"></canvas>');
-		 
-	    var e, a, t = $("#chart_cpu");
-	    t.length && (e = t,
-	    a = new Chart(e,{
-	        type: "line",
-	        options: {
-	            scales: {
-	                yAxes: [{
-	                    gridLines: {
-	                        lineWidth: 1,
-	                        color: Charts.colors.gray[900],
-	                        zeroLineColor: Charts.colors.gray[900]
-	                    },
-	                    ticks: {
-	                        min: 0, // 최소값
-	                        max: 100, // 최대값
-	                        callback: function(value) {
-	                            return value.toLocaleString('ko-KR') + " %";
-	                        }
-	                    }
-	                }]
-	            },
-	            tooltips: {
-	                callbacks: {
-	                    label: function(e, a) {
-	                        var t = a.datasets[e.datasetIndex].label || ""
-	                          , o = e.yLabel
-	                          , n = "";
-	                        return 1 < a.datasets.length && (n += '<span class="popover-body-label mr-auto">' + t + "</span>"),
-	                        n += '<span class="popover-body-value">' + o.toLocaleString('ko-KR') + "%</span>"
-	                    }
-	                }
-	            }
-	        },
-	        data: {
-	            labels: chart2_x,
-	            datasets: [{
-	                label: "Performance",
-	                data: chart2_value
-	            }]
-	        }
-	    }),
-	    e.data("chart", a))
-	}();
-	
-
-	
-}
-
-//네트워크 송수신 데이터 
-function networkinfo() {
-	$.ajax({
-	    type : 'POST',
-	    url : './networkinfo',
-	    async : false,
-	    success : function(data) {
-	    	
-	    	const value = JSON.parse(data);
-	    	
-	    	var data3_Element = document.getElementById("data3_value");
-	  	 	data3_Element.innerHTML =EmptyValueChange(value.recv) + " Mbps";
-	  	 	
-	  	 	var data4_Element = document.getElementById("data4_value");
-	  	 	data4_Element.innerHTML =EmptyValueChange(value.send) + " Mbps";
-	    }
-	
-	});
-}
+		OrdersChart = function () {
+			$('#chart_hdd').remove();
+			$('#chart_s2').append('<canvas id="chart_hdd" class="chart-canvas"></canvas>');
+			var e, a, t = $("#chart_hdd");
+			$('[name="ordersSelect"]');
+			t.length && (e = t,
+				a = new Chart(e, {
+					type: "bar",
+					options: {
+						scales: {
+							yAxes: [{
+								gridLines: {
+									lineWidth: 1,
+									color: "#dfe2e6",
+									zeroLineColor: "#dfe2e6"
+								},
+								ticks: {
+									callback: function (e) {
+										if (!(e % 10))
+											return e + " GB"
+									}
+								}
+							}]
+						},
+						tooltips: {
+							callbacks: {
+								label: function (e, a) {
+									var t = a.datasets[e.datasetIndex].label || ""
+										, o = e.yLabel
+										, n = "";
+									return 1 < a.datasets.length && (n += '<span class="popover-body-label mr-auto">' + t + "</span>"),
+										n += '<span class="popover-body-value">' + o.toLocaleString('ko-KR') + "GB</span>"
+								}
+							}
+						}
+					},
+					data: {
+						labels: line_x,
+						datasets: [{
+							label: "Sales",
+							data: line_value
+						}]
+					}
+				}),
+				e.data("chart", a))
+		}();
 
 
-
-//램 사용량
-function raminfo() {
-	$.ajax({
-	    type : 'POST',
-	    url : './raminfo',
-	    async : false,
-	    success : function(data) {
-	    	var data2_Element = document.getElementById("data2_value");
-	  	 	data2_Element.innerHTML =EmptyValueChange(data) + " MB";
-	    }
-	
-	});
-}
+	}
 
 
-//Cpu 사용량
-function cpuinfo() {
-	
-	const now = new Date();
-	const hours = now.getHours();
-	const minutes = now.getMinutes();
-	const seconds = now.getSeconds();
-	
+	//CPU 실시간 사용량
+	function chart_cpu() {
 
-	
-	
-	$.ajax({
-	    type : 'POST',
-	    url : './cpuinfo',
-	    async : false,
-	    success : function(data) {
-	    	var data1_Element = document.getElementById("data1_value");
-	  	 	data1_Element.innerHTML =EmptyValueChange(data) + " %";
-	  	 
-	  	 	
-	
+		SalesChart = function () {
+			$('#chart_cpu').remove();
+			$('#chart_s').append('<canvas id="chart_cpu" class="chart-canvas"></canvas>');
 
-	  	 	
-	  	 	if (be_hours+":"+be_min+":"+be_sec != hours+":"+minutes+":"+seconds){
-				   
-				if (chart2_x.length > 4){
-			 		arrayRemoveAndReindex(chart2_x,0)
-					arrayRemoveAndReindex(chart2_value,0)//
-					//console.log(chart2_x.length+"---"+chart2_value.length);
+			var e, a, t = $("#chart_cpu");
+			t.length && (e = t,
+				a = new Chart(e, {
+					type: "line",
+					options: {
+						scales: {
+							yAxes: [{
+								gridLines: {
+									lineWidth: 1,
+									color: Charts.colors.gray[900],
+									zeroLineColor: Charts.colors.gray[900]
+								},
+								ticks: {
+									min: 0, // 최소값
+									max: 100, // 최대값
+									callback: function (value) {
+										return value.toLocaleString('ko-KR') + " %";
+									}
+								}
+							}]
+						},
+						tooltips: {
+							callbacks: {
+								label: function (e, a) {
+									var t = a.datasets[e.datasetIndex].label || ""
+										, o = e.yLabel
+										, n = "";
+									return 1 < a.datasets.length && (n += '<span class="popover-body-label mr-auto">' + t + "</span>"),
+										n += '<span class="popover-body-value">' + o.toLocaleString('ko-KR') + "%</span>"
+								}
+							}
+						}
+					},
+					data: {
+						labels: chart2_x,
+						datasets: [{
+							label: "Performance",
+							data: chart2_value
+						}]
+					}
+				}),
+				e.data("chart", a))
+		}();
+
+
+
+	}
+
+	//네트워크 송수신 데이터 
+	function networkinfo() {
+		$.ajax({
+			type: 'POST',
+			url: './networkinfo',
+			async: false,
+			success: function (data) {
+
+				const value = JSON.parse(data);
+
+				var data3_Element = document.getElementById("data3_value");
+				data3_Element.innerHTML = EmptyValueChange(value.recv) + " Mbps";
+
+				var data4_Element = document.getElementById("data4_value");
+				data4_Element.innerHTML = EmptyValueChange(value.send) + " Mbps";
+			}
+
+		});
+	}
+
+
+
+	//램 사용량
+	function raminfo() {
+		$.ajax({
+			type: 'POST',
+			url: './raminfo',
+			async: false,
+			success: function (data) {
+				var data2_Element = document.getElementById("data2_value");
+				data2_Element.innerHTML = EmptyValueChange(data) + " MB";
+			}
+
+		});
+	}
+
+
+	//Cpu 사용량
+	function cpuinfo() {
+
+		const now = new Date();
+		const hours = now.getHours();
+		const minutes = now.getMinutes();
+		const seconds = now.getSeconds();
+
+
+
+
+		$.ajax({
+			type: 'POST',
+			url: './cpuinfo',
+			async: false,
+			success: function (data) {
+				var data1_Element = document.getElementById("data1_value");
+				data1_Element.innerHTML = EmptyValueChange(data) + " %";
+
+
+
+
+				//시간중복 방지 
+				if (be_hours + ":" + be_min + ":" + be_sec != hours + ":" + minutes + ":" + seconds) {
+					//차트에서 x 값이 4개이상이면 첫번째 값 삭제 후 마지막배열에 값 넣기
+					if (chart2_x.length > 4) {
+						arrayRemoveAndReindex(chart2_x, 0)
+						arrayRemoveAndReindex(chart2_value, 0)//
+					}
+					chart2_x.push(`${hours}:${minutes}:${seconds}`);
+					chart2_value.push(EmptyValueChange(data));
+					be_hours = hours;
+					be_min = minutes;
+					chart_cpu();
+
 				}
-	  	 		chart2_x.push(`${hours}:${minutes}:${seconds}`);
-	  	 		chart2_value.push(EmptyValueChange(data));
-	  	 		be_hours=hours;
-	  	 		be_min=minutes;
-	  	 		chart_cpu();
-	  	 		
-	  	 	}
-	  	 	
-	    }
-	
-	});
-}
 
+			}
 
-setTimeout(function() {
-	setInterval(cpuinfo, 3000);
-	setInterval(raminfo, 3000);
-	setInterval(networkinfo, 3000);
-	setInterval(prolist, 3000);
-}, 1000);
+		});
+	}
 
-hddlist();
+	//순차적 실행읋 위해 html 및 js 실행 수 1초 뒤에 실행
+	//setInterval 경우, 3초마다 Timer 처리  
+	setTimeout(function () {
+		setInterval(cpuinfo, 3000);
+		setInterval(raminfo, 3000);
+		setInterval(networkinfo, 3000);
+		setInterval(prolist, 3000);
+	}, 1000);
+
+	//하드디스크 실행
+	hddlist();
 
 
 </script>
