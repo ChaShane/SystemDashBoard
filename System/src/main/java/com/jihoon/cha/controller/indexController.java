@@ -178,15 +178,20 @@ public class indexController {
 	@ResponseBody
 	public  String cpuinfo () throws Exception {
 		
-		 BufferedReader reader = new BufferedReader(new FileReader("/proc/cpuinfo"));
-         String line;
-         
-         while ((line = reader.readLine()) != null) {
-             System.out.println(line);
-         }
-         
-         reader.close();
-		return line;
+		String command = "top -bn 1 | grep 'Cpu(s)'"; // 현재 CPU 사용량 정보 가져오기
+        Process process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
+        String result="";
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = reader.readLine();
+        if (line != null) {
+            String[] parts = line.split("\\s+");
+            double cpuUsage = Double.parseDouble(parts[1]) + Double.parseDouble(parts[2]);
+            System.out.println("CPU Usage: " + cpuUsage + "%");
+            result = Double.toString(cpuUsage);
+        }
+        
+        reader.close();
+		return result;
 	}
 	
 	//index.html 호출
