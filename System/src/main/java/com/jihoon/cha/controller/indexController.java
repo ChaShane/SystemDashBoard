@@ -194,8 +194,8 @@ public class indexController {
 	@ResponseBody
 	public  String raminfo () throws Exception {
 		OperatingSystemMXBean osbean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
-		long freeMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getFreePhysicalMemorySize() / 1024;
-        long totalMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getTotalPhysicalMemorySize() / 1024 ;
+		long freeMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getFreePhysicalMemorySize() / 1024 / 1024;
+        long totalMemory = ((com.sun.management.OperatingSystemMXBean) osbean).getTotalPhysicalMemorySize() / 1024 / 1024 ;
         String memoryInfo = formatMemory(freeMemory) + " / " + formatMemory(totalMemory);
 		return memoryInfo;
 	}
